@@ -22,6 +22,10 @@ Example images (from the *rotZ180* pose) are in `examples/pose_rotZ180/`:
 | --- | --- |
 | ![recon](examples/pose_rotZ180/recon_right.png) | ![diff](examples/pose_rotZ180/diff_right.png) |
 
+| Depth 3-D Surface (Left) | Depth 3-D Surface (Right) |
+| --- | --- |
+| ![left3d](examples/pose_rotZ180/left_depth_3d.png) | ![right3d](examples/pose_rotZ180/right_depth_3d.png) |
+
 ---
 
 ## Requirements
