@@ -97,7 +97,9 @@ def main():
     center = np.asarray(mesh.get_center())
     cam_pos = center + np.array([0.0, 0.0, 300.0])  # 300mm in +Z
     # Rotate 180° around Y so optical axis points towards -Z (object)
-    cam_rot = o3d.geometry.get_rotation_matrix_from_xyz([0.0, np.pi, 0.0])
+    base_rot = o3d.geometry.get_rotation_matrix_from_xyz([0.0, np.pi, 0.0])
+    Rz_180 = np.array([[-1, 0, 0], [0, -1, 0], [0, 0, 1]])
+    cam_rot = base_rot @ Rz_180
     stereo_cam.set_left_pose(cam_pos, cam_rot)
 
     # ---------------------------------------------------------------------
