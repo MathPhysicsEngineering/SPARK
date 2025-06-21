@@ -5,11 +5,16 @@ from pathlib import Path
 from typing import Optional
 
 
+__all__ = ["save_depth_3d_plot"]
+
+
 def save_depth_3d_plot(depth_mm: np.ndarray,
                        out_path: Path,
                        title: Optional[str] = None,
                        dpi: int = 150,
-                       show: bool = False):
+                       show: bool = False,
+                       mask_zero: bool = True,
+                       invert_z: bool = True):
     """Save a 3-D surface plot visualisation of a metric depth image.
 
     Parameters
@@ -24,25 +29,43 @@ def save_depth_3d_plot(depth_mm: np.ndarray,
         Figure resolution.
     show : bool
         Whether to display the plot before saving.
+    mask_zero : bool
+        Whether to mask zero-depth pixels (e.g. background).
+    invert_z : bool
+        Whether to invert the Z axis so that larger depth is visually "lower" in the scene.
     """
-    depth = np.nan_to_num(depth_mm, nan=0.0, posinf=0.0, neginf=0.0)
+    depth = depth_mm.astype(float).copy()
+
+    # Optionally ignore zero-depth pixels (e.g. background)
+    if mask_zero:
+        depth[depth <= 0.0] = np.nan
+
+    # Replace remaining invalid entries
+    depth = np.nan_to_num(depth, nan=np.nan)
 
     h, w = depth.shape
     X, Y = np.meshgrid(np.arange(w), np.arange(h))
 
     fig = plt.figure(figsize=(8, 6), dpi=dpi)
     ax = fig.add_subplot(111, projection='3d')
-    surf = ax.plot_surface(X, Y, depth, cmap='viridis', linewidth=0, antialiased=False)
+    surf = ax.plot_surface(X, Y, depth, cmap='viridis', linewidth=0, antialiased=False, rstride=1, cstride=1)
 
     ax.set_xlabel('X [px]')
     ax.set_ylabel('Y [px]')
     ax.set_zlabel('Depth [mm]')
     ax.invert_yaxis()  # match image coordinates (origin at top-left)
 
+    # Flip Z so that larger depth is visually "lower" in the scene
+    if invert_z:
+        ax.invert_zaxis()
+
     if title:
         ax.set_title(title)
 
-    fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10, pad=0.1, label='Depth [mm]')
+    # Colour-bar only if data exists
+    if np.isfinite(depth).any():
+        fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10, pad=0.1, label='Depth [mm]')
+
     fig.tight_layout()
 
     out_path.parent.mkdir(parents=True, exist_ok=True)

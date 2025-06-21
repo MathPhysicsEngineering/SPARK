@@ -148,6 +148,8 @@ def main():
             out_dir / f"{side}_depth_3d.png",
             title=f"{side.capitalize()} Depth 3D Surface",
             show=True,
+            mask_zero=True,
+            invert_z=True,
         )
 
     # ---------------------------------------------------------------------
