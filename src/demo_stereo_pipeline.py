@@ -7,6 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
 from core.StereoCamera import CameraIntrinsics, StereoCamera
 from utils.reprojection import warp_image, reconstruction_error, CameraIntrinsics as UtilsIntrinsics
+from utils.plotting import save_depth_3d_plot
 
 
 def _intrinsics_to_utils(intr: CameraIntrinsics) -> UtilsIntrinsics:
@@ -138,6 +139,16 @@ def main():
         if np.max(depth_mm) > 0:
             depth_vis = (depth_mm / np.max(depth_mm) * 65535.0).astype(np.uint16)
             cv2.imwrite(str(out_dir / f"{side}_depth_vis.png"), depth_vis)
+
+        # ------------------------------------------------------------------
+        # 3-D surface plot (interactive + saved PNG)
+        # ------------------------------------------------------------------
+        save_depth_3d_plot(
+            depth_mm,
+            out_dir / f"{side}_depth_3d.png",
+            title=f"{side.capitalize()} Depth 3D Surface",
+            show=True,
+        )
 
     # ---------------------------------------------------------------------
     # 6. Reconstruct right from left and depth & vice-versa
