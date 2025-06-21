@@ -16,7 +16,7 @@ from utils.plotting import save_depth_3d_plot
 DEF_TITLE_TMPL = "{name} depth"
 
 
-def process_directory(dir_path: Path, out_subdir: Optional[str] = None, overwrite: bool = False):
+def process_directory(dir_path: Path, out_subdir: Optional[str] = None, overwrite: bool = False, show: bool = False):
     """Search `dir_path` recursively for `*_depth.tiff` files and generate 3-D plot PNGs.
 
     Parameters
@@ -27,6 +27,8 @@ def process_directory(dir_path: Path, out_subdir: Optional[str] = None, overwrit
         If provided, saves plots into `file.parent/out_subdir/` rather than alongside the TIFF.
     overwrite : bool
         Re-create images even if the output PNG already exists.
+    show : bool
+        Display interactive 3-D plots while saving
     """
     depth_files = list(dir_path.rglob("*_depth.tiff"))
     if not depth_files:
@@ -50,7 +52,7 @@ def process_directory(dir_path: Path, out_subdir: Optional[str] = None, overwrit
             continue
 
         title = DEF_TITLE_TMPL.format(name=depth_path.stem)
-        save_depth_3d_plot(depth, out_path, title)
+        save_depth_3d_plot(depth, out_path, title, show=show)
         print(f"[OK] Saved {out_path.relative_to(dir_path)}")
 
 
@@ -59,6 +61,7 @@ if __name__ == "__main__":
     parser.add_argument("root", type=str, help="Directory containing *_depth.tiff files (searched recursively)")
     parser.add_argument("--out-subdir", type=str, default=None, help="Save plots into this subdirectory")
     parser.add_argument("--overwrite", action="store_true", help="Overwrite existing plot files")
+    parser.add_argument("--show", action="store_true", help="Display interactive 3-D plots while saving")
     args = parser.parse_args()
 
-    process_directory(Path(args.root), args.out_subdir, args.overwrite) 
+    process_directory(Path(args.root), args.out_subdir, args.overwrite, args.show) 

@@ -1,13 +1,15 @@
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 from pathlib import Path
 from typing import Optional
 
 
-def save_depth_3d_plot(depth_mm: np.ndarray, out_path: Path, title: Optional[str] = None, dpi: int = 150):
+def save_depth_3d_plot(depth_mm: np.ndarray,
+                       out_path: Path,
+                       title: Optional[str] = None,
+                       dpi: int = 150,
+                       show: bool = False):
     """Save a 3-D surface plot visualisation of a metric depth image.
 
     Parameters
@@ -20,6 +22,8 @@ def save_depth_3d_plot(depth_mm: np.ndarray, out_path: Path, title: Optional[str
         Title text for the plot.
     dpi : int
         Figure resolution.
+    show : bool
+        Whether to display the plot before saving.
     """
     depth = np.nan_to_num(depth_mm, nan=0.0, posinf=0.0, neginf=0.0)
 
@@ -43,4 +47,8 @@ def save_depth_3d_plot(depth_mm: np.ndarray, out_path: Path, title: Optional[str
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, bbox_inches='tight')
-    plt.close(fig) 
+
+    if show:
+        plt.show()
+    else:
+        plt.close(fig) 
