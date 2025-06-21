@@ -15,7 +15,6 @@ SPARK_venv/
 # Generated data / outputs
 output/
 output_*/
-*.png
 *.tiff
 
 # Mac / Windows metadata
