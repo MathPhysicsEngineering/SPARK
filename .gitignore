@@ -1,0 +1,23 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+SPARK_venv/
+
+# IDE / editor junk
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Generated data / outputs
+output/
+output_*/
+*.png
+*.tiff
+
+# Mac / Windows metadata
+.DS_Store
+Thumbs.db 
