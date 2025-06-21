@@ -150,6 +150,7 @@ def main():
             show=True,
             mask_zero=True,
             invert_z=True,
+            top_down=True,
         )
 
     # ---------------------------------------------------------------------

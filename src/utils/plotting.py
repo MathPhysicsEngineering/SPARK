@@ -14,7 +14,8 @@ def save_depth_3d_plot(depth_mm: np.ndarray,
                        dpi: int = 150,
                        show: bool = False,
                        mask_zero: bool = True,
-                       invert_z: bool = True):
+                       invert_z: bool = True,
+                       top_down: bool = False):
     """Save a 3-D surface plot visualisation of a metric depth image.
 
     Parameters
@@ -33,6 +34,8 @@ def save_depth_3d_plot(depth_mm: np.ndarray,
         Whether to mask zero-depth pixels (e.g. background).
     invert_z : bool
         Whether to invert the Z axis so that larger depth is visually "lower" in the scene.
+    top_down : bool
+        Render with camera directly above looking down (elev=90°) for a height-map like view.
     """
     depth = depth_mm.astype(float).copy()
 
@@ -58,6 +61,10 @@ def save_depth_3d_plot(depth_mm: np.ndarray,
     # Flip Z so that larger depth is visually "lower" in the scene
     if invert_z:
         ax.invert_zaxis()
+
+    # Optionally change view to top-down
+    if top_down:
+        ax.view_init(elev=90, azim=-90)
 
     if title:
         ax.set_title(title)
