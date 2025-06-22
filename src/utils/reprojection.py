@@ -88,15 +88,23 @@ def warp_image(
     src_u_valid_total = src_u[valid_mask]
     src_v_valid_total = src_v[valid_mask]
     for idx in idxs:
-        ui = int(round(u[idx]))
-        vi = int(round(v[idx]))
-        if ui < 0 or ui >= tgt_intr.width or vi < 0 or vi >= tgt_intr.height:
-            continue
+        u_f = u[idx]
+        v_f = v[idx]
+        u0 = int(np.floor(u_f))
+        v0 = int(np.floor(v_f))
         z = pts_tgt[idx, 2]
-        if z < depth_buf[vi, ui]:
-            depth_buf[vi, ui] = z
-            map_x[vi, ui] = src_u_valid_total[idx]
-            map_y[vi, ui] = src_v_valid_total[idx]
+
+        # Splat to four neighbouring integer pixels (u0,v0) … (u0+1,v0+1)
+        for du in (0, 1):
+            for dv in (0, 1):
+                ui = u0 + du
+                vi = v0 + dv
+                if ui < 0 or ui >= tgt_intr.width or vi < 0 or vi >= tgt_intr.height:
+                    continue
+                if z < depth_buf[vi, ui]:
+                    depth_buf[vi, ui] = z
+                    map_x[vi, ui] = src_u_valid_total[idx]
+                    map_y[vi, ui] = src_v_valid_total[idx]
 
     # Perform remap (bilinear)
     src_rgb_8u = (src_rgb * 255).astype(np.uint8)
