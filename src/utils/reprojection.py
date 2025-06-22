@@ -69,27 +69,34 @@ def warp_image(
     u = u.astype(np.float32)
     v = v.astype(np.float32)
 
-    # Prepare maps for cv2.remap (float32)
+    # Prepare maps for cv2.remap with depth buffering to resolve occlusions
     map_x = np.full((tgt_intr.height, tgt_intr.width), -1, dtype=np.float32)
     map_y = np.full((tgt_intr.height, tgt_intr.width), -1, dtype=np.float32)
+    depth_buf = np.full((tgt_intr.height, tgt_intr.width), np.inf, dtype=np.float32)
 
     # Original pixel coordinates in source image
     src_u, src_v = _pixel_grid(src_intr.width, src_intr.height)
     src_u = src_u.flatten().astype(np.float32)
     src_v = src_v.flatten().astype(np.float32)
 
-    # Fill maps where projection is valid and within bounds
+    # Fill maps where projection is valid and within bounds (with z-buffer)
     mask_bounds = (
         (u >= 0) & (u < tgt_intr.width) & (v >= 0) & (v < tgt_intr.height) & (pts_tgt[:, 2] > 0)
     )
-    u_valid = u[mask_bounds]
-    v_valid = v[mask_bounds]
-    src_u_valid = src_u[valid_mask][mask_bounds]
-    src_v_valid = src_v[valid_mask][mask_bounds]
 
-    # map_x/ map_y is source coordinate lookup for each target pixel
-    map_x[np.floor(v_valid).astype(int), np.floor(u_valid).astype(int)] = src_u_valid
-    map_y[np.floor(v_valid).astype(int), np.floor(u_valid).astype(int)] = src_v_valid
+    idxs = np.where(mask_bounds)[0]
+    src_u_valid_total = src_u[valid_mask]
+    src_v_valid_total = src_v[valid_mask]
+    for idx in idxs:
+        ui = int(round(u[idx]))
+        vi = int(round(v[idx]))
+        if ui < 0 or ui >= tgt_intr.width or vi < 0 or vi >= tgt_intr.height:
+            continue
+        z = pts_tgt[idx, 2]
+        if z < depth_buf[vi, ui]:
+            depth_buf[vi, ui] = z
+            map_x[vi, ui] = src_u_valid_total[idx]
+            map_y[vi, ui] = src_v_valid_total[idx]
 
     # Perform remap (bilinear)
     src_rgb_8u = (src_rgb * 255).astype(np.uint8)
