@@ -13,9 +13,8 @@ SPARK_venv/
 .vscode/
 
 # Generated data / outputs
-output/
-output_*/
-*.tiff
+# output/ directory now tracked for sample results
+# (remove ignore patterns)
 
 # Mac / Windows metadata
 .DS_Store
